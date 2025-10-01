@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="geo_location"></div>
+
+    <script>
+
+function getGeolocation(){
+    var geo = navigator.geolocation.getCurrentPosition(showLocation, showerror)
+}
+
+function showLocation(position){
+// console.log(position.coords);
+var lat = position.coords.latitude;
+var long = position.coords.longitude;
+var geo_location = document.getElementById('geo_location');
+
+    geo_location.innerHTML=`latitude = ${lat} <br> Longitude = ${long}`
+// console.log(lang);
+}
+function showerror(error){
+    console.log(error);
+}
+getGeolocation();
+    </script>
+</body>
+</html>

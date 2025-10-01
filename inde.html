@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get PIN Code from Geolocation</title>
+</head>
+<body>
+
+  <h1>Get PIN Code from Geolocation</h1>
+
+  <button onclick="getLocation()">Get PIN Code</button>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" ></script>
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function showPosition(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      // Using Google Maps Geocoding API
+      const apiKey = 'AIzaSyBIKfrRbw0hBXK2HkcUVa3QnW8MY6TnYbo';
+      const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const addressComponents = data.results[0].address_components;
+          let pinCode = null;
+
+          for (const component of addressComponents) {
+            if (component.types.includes('postal_code')) {
+              pinCode = component.short_name;
+              break;
+            }
+          }
+
+          if (pinCode) {
+            alert(`The PIN Code is: ${pinCode}`);
+          } else {
+            alert('Unable to retrieve PIN Code.');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching geocoding data:', error);
+          alert('Error fetching geocoding data. Please try again.');
+        });
+    }
+
+    function showError(error) {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert("User denied the request for Geolocation.");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable.");
+          break;
+        case error.TIMEOUT:
+          alert("The request to get user location timed out.");
+          break;
+        case error.UNKNOWN_ERROR:
+          alert("An unknown error occurred.");
+          break;
+      }
+    }
+  </script>
+
+</body>
+</html>

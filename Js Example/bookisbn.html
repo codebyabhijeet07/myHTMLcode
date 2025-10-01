@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Detail</title>
+</head>
+<body>
+  
+    <input type="text" id="isbn">
+    <button onclick="fetchBookDetail()">Get Book Data</button>
+
+    
+   <div id="bookdata"></div>
+
+
+
+ 
+
+   <script>
+    async function fetchBookDetail(){
+        // alert()
+        const isbn = document.getElementById('isbn');
+        const isbnvalue = isbn.value.trim();
+
+        if(!isbnvalue){
+            alert('Please Enter ISBN No');
+            return;
+        }
+        const bookDetails = document.getElementById('bookdata');
+
+        try{
+            const fetchbook = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnvalue}`);
+            const fetchbookJson = await fetchbook.json();
+            console.log(fetchbookJson.items[0].volumeInfo);
+            
+
+            if((fetchbookJson.items  && fetchbookJson.items[0].volumeInfo ) || fetchbookJson.items[0].volumeInfo.imageLinks['thumbnail']){
+                bookDetails.innerHTML = `
+            <p><strong>Title</strong>   : ${fetchbookJson.items[0].volumeInfo.title}</p>
+            <p><strong>Authors</strong>   : ${fetchbookJson.items[0].volumeInfo.authors}</p>
+            <p><strong>categories</strong>   : ${fetchbookJson.items[0].volumeInfo.categories}</p>
+            <p><strong>description</strong>   : ${fetchbookJson.items[0].volumeInfo.description}</p>
+            <p><strong>publisher</strong>   : ${fetchbookJson.items[0].volumeInfo.publisher}</p>
+            <p><strong>imageLinks</strong>   : <img src="${fetchbookJson.items[0].volumeInfo.imageLinks['thumbnail']}" ></p>
+            `;
+            }else{
+                bookDetails.innertHTML = `Data Not found`;
+            }
+
+        }catch(error){
+            console.log(error.message);
+            bookDetails.innerHTML =`${error.message}`;
+        }
+    }
+   </script>
+</body>
+</html>

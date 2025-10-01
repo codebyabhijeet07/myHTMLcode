@@ -1,0 +1,119 @@
+package com.example.golink;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final String WEBSITE_URL = "https://golink.services/login";
+
+    private WebView webView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar progressBar;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        initializeViews();
+    }
+
+    private void initializeViews() {
+        swipeRefreshLayout = findViewById(R.id.swipeContainer);
+        progressBar = findViewById(R.id.progressBar);
+
+        swipeRefreshLayout.setOnRefreshListener(this::refreshWebView);
+
+        if (!isInternetAvailable()) {
+            showNoInternetDialog();
+        } else {
+            configureWebView();
+        }
+    }
+
+    private void configureWebView() {
+        webView = findViewById(R.id.webView);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+
+        webView.loadUrl(WEBSITE_URL);
+        webView.setWebViewClient(createWebViewClient());
+    }
+
+    private WebViewClient createWebViewClient() {
+        return new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // ... (Your existing shouldOverrideUrlLoading logic)
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                progressBar.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        };
+    }
+
+    private void refreshWebView() {
+        if (!isInternetAvailable()) {
+            showNoInternetDialog();
+        } else {
+            webView.reload();
+        }
+    }
+
+    private void showNoInternetDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("No Internet Connection")
+                .setMessage("Please check your mobile data or Wi-Fi network.")
+                .setPositiveButton("Ok", (dialog, which) -> finish())
+                .show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.isFocused() && webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            showExitConfirmationDialog();
+        }
+    }
+
+    private void showExitConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Are you sure you want to close this app?")
+                .setPositiveButton("Yes", (dialog, which) -> finish())
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+}

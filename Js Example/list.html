@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PDF from List</title>
+    <style>
+        body {
+            text-align: left;
+        }
+
+        #pdfTitle {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>List Generator and PDF Exporter</h1>
+
+    <form id="listForm">
+        <label for="listItem">Add Item to List:</label>
+        <input type="text" id="listItem" required>
+        <button type="button" onclick="addItemToList()">Add</button>
+    </form>
+
+    <h2>Generated List:</h2>
+    <ul id="generatedList"></ul>
+
+    <label for="pdfTitle">PDF Title:</label>
+    <input type="text" id="pdfTitle" placeholder="Enter PDF Title">
+
+    <button type="button" onclick="generatePDF()">Generate PDF</button>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <script>
+        let items = [];
+
+        function addItemToList() {
+            const listItemInput = document.getElementById('listItem');
+            const listItemValue = listItemInput.value.trim();
+
+            if (listItemValue !== '') {
+                items.push(listItemValue);
+                updateGeneratedList();
+                listItemInput.value = '';
+            }
+        }
+
+        function updateGeneratedList() {
+            const generatedList = document.getElementById('generatedList');
+            generatedList.innerHTML = '';
+            
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                generatedList.appendChild(li);
+            });
+        }
+
+        function generatePDF() {
+            const pdfTitleInput = document.getElementById('pdfTitle');
+            const pdfTitle = pdfTitleInput.value.trim() || 'Generated List';
+
+            const pdf = new jspdf.jsPDF();
+
+            // Calculate the center position based on the page width
+            const pageWidth = pdf.internal.pageSize.width;
+            const textWidth = pdf.getStringUnitWidth(pdfTitle) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+            const centerX = (pageWidth - textWidth) / 2;
+
+            pdf.text(centerX, 10, pdfTitle);
+
+            items.forEach((item, index) => {
+                pdf.text(20, 20 + (index * 10), `${index + 1}. ${item}`);
+            });
+
+            pdf.save('generated_list.pdf');
+        }
+    </script>
+
+</body>
+</html>

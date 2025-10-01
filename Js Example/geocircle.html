@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highlighted Area on Map</title>
+  <!-- Include Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* Set the size of the map container */
+    #map {
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Create a container for the map -->
+<div id="map"></div>
+
+<!-- Include Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  // Initialize the map centered at a specific location
+  var map = L.map('map').setView([37.7749, -122.4194], 13);
+
+  // Add a tile layer for the map (you can use other tile layers as needed)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Add a marker at the center location
+  L.marker([37.7749, -122.4194]).addTo(map);
+
+  // Highlighted rectangular area with a height of 10,000 meters
+  var rectangle = L.rectangle([
+    [37.7749 + 0.045, -122.4194 - 0.045],  // Top-left corner
+    [37.7749 - 0.045, -122.4194 + 0.045]   // Bottom-right corner
+  ], {
+    color: 'red',
+    fillColor: 'red',
+    fillOpacity: 0.2
+  }).addTo(map);
+
+  // Optionally, you can also add a popup with information
+  rectangle.bindPopup("Highlighted Area with 10,000 meters height");
+
+  // You can customize the appearance of the rectangle according to your needs
+</script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book & Product Search</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Search for a Product or Book</h1>
+    <input type="text" id="code" placeholder="Enter ISBN, EAN, or UPC" />
+    <button id="search">Search</button>
+    
+    <div id="result" style="margin-top: 20px;">
+        <!-- Results will appear here -->
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#search").click(function () {
+                let code = $("#code").val().trim().replace(/\D/g, '');
+
+                alert(code);
+                if (!code) {
+                    alert("Please enter a code!");
+                    return;
+                }
+
+                // Clear previous results
+                $("#result").html("<p>Searching...</p>");
+
+                // Check length to prioritize search type (ISBN or EAN/UPC)
+                if (code.length === 10 || code.length === 13) {
+                    // ISBN
+                    searchGoogleBooks(code);
+                } else {
+                    // EAN or UPC
+                    searchUPCItemDB(code);
+                }
+
+                // Search Google Books API (for ISBN)
+                function searchGoogleBooks(isbn) {
+                    $.ajax({
+                        url: `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
+                        type: "GET",
+                        success: function (response) {
+                            if (response.totalItems > 0) {
+                                displayData(response.items[0].volumeInfo, "Google Books API");
+                            } else {
+                                searchOpenLibrary(isbn);
+                            }
+                        },
+                        error: function () {
+                            searchOpenLibrary(isbn);
+                        }
+                    });
+                }
+
+                // Search Open Library API (fallback for ISBN)
+                function searchOpenLibrary(isbn) {
+                    $.ajax({
+                        url: `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
+                        type: "GET",
+                        success: function (response) {
+                            let bookKey = `ISBN:${isbn}`;
+                            if (response[bookKey]) {
+                                displayData(response[bookKey], "Open Library API");
+                            } else {
+                                $("#result").html("<p>No book found for this ISBN.</p>");
+                            }
+                        },
+                        error: function () {
+                            $("#result").html("<p>Failed to fetch data for this ISBN.</p>");
+                        }
+                    });
+                }
+
+                // Search UPCItemDB API (for EAN/UPC)
+                function searchUPCItemDB(code) {
+                    $.ajax({
+                        url: `https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`,
+                        type: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        success: function (response) {
+                            if (response.items && response.items.length > 0) {
+                                displayData(response.items[0], "UPCItemDB API");
+                            } else {
+                                $("#result").html("<p>No product found for this code.</p>");
+                            }
+                        },
+                        error: function () {
+                            $("#result").html("<p>Failed to fetch data for this EAN/UPC.</p>");
+                        }
+                    });
+                }
+
+                // Display data in the result section
+                function displayData(data, source) {
+                    let title = data.title || "N/A";
+                    let brand = data.brand || "N/A";
+                    let authors = data.authors
+                        ? Array.isArray(data.authors)
+                            ? data.authors.join(", ")
+                            : data.authors
+                        : "N/A";
+                    let publisher = data.publisher || "N/A";
+                    let publishedDate = data.publishedDate || data.publish_date || "N/A";
+
+                    $("#result").html(`
+                        <h2>${title}</h2>
+                        <p><strong>Brand/Publisher:</strong> ${brand || publisher}</p>
+                        <p><strong>Author(s):</strong> ${authors}</p>
+                        <p><strong>Published Date:</strong> ${publishedDate}</p>
+                        <p><em>Data Source:</em> ${source}</p>
+                    `);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

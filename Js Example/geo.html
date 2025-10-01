@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap demo with Leaflet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Include Leaflet CSS and JavaScript -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+  <h1>Hello, world!</h1>
+  <!-- Map container -->
+  <iframe width="425" height="350" src="https://www.openstreetmap.org/export/embed.html?bbox=73.7923550605774%2C18.483180661225067%2C73.80239725112916%2C18.48977419873097&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/#map=17/18.48648/73.79738">View Larger Map</a></small>
+  <div id="map" style="width: 100%; height: 100vh;"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function showPosition(position) {
+      var lat = position.coords.latitude;
+      var long = position.coords.longitude;
+
+      // Create a map centered around the user's location
+      var map = L.map('map').setView([lat, long], 13);
+
+      // Add OpenStreetMap tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Add a marker at the user's location
+      L.marker([lat, long]).addTo(map)
+        .bindPopup('You are here!')
+        .openPopup();
+    }
+
+    function showError(error) {
+      console.error("Error getting location:", error);
+    }
+
+    getLocation();
+  </script>
+</body>
+</html>

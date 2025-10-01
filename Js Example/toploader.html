@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .top-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px; /* You can adjust the height */
+            background-color: #49ff11; /* Loader color */
+            display: block; /* Initially show the loader */
+            z-index: 1000; /* Make sure it's above other elements */
+        }
+    </style>
+    <!-- Include jQuery library -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body>
+    <!-- Your page content goes here -->
+
+    <div class="top-loader" id="topLoader"></div>
+
+    <script>
+        $(document).ready(function () {
+            // Simulate content loading
+            setTimeout(function() {
+                hideLoader();
+            }, 2000); // Change the time or use an event to hide the loader when your content is loaded
+        });
+
+        function hideLoader() {
+            var loader = document.getElementById("topLoader");
+            if (loader) {
+                loader.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

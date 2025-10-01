@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show QR Code</title>
+</head>
+<body>
+    <!-- Input for QR code text -->
+    <input type="text" id="textInput" placeholder="Enter text for QR code">
+    <br><br>
+
+    <input type="file" id="logoInput" onchange="showLogo()"">
+    <br><br>
+    <img id="logoImage" style="max-width: 100%; max-height: 200px;" alt="Logo Preview">
+    <br><br>
+
+    <!-- Input for image size ratio (optional) -->
+    <input type="number" id="imageSizeRatioInput" placeholder="Enter image size ratio (optional)">
+    <br><br>
+
+    <!-- Display area for the generated QR code -->
+    <img id="qrCodeImage" style="max-width: 100%; max-height: 200px;" alt="QR Code Preview">
+    <br><br>
+
+    <!-- Button to trigger the QR code generation -->
+    <button type="button" onclick="generateQRCode()">Generate QR Code</button>
+
+    <!-- JavaScript code for QR code generation -->
+
+    <script>
+        function showLogo() {
+            var logoInput = document.getElementById('logoInput');
+            var logoImage = document.getElementById('logoImage');
+            
+            var file = logoInput.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    logoImage.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a logo file.');
+            }
+        }
+    </script>
+
+    <script>
+        function generateQRCode() {
+            // Get values from input fields
+            var logoImage = document.getElementById('logoImage');
+            console.log(logoImage.src);
+            var textInput = document.getElementById('textInput').value;
+            var imageUrlInput = logoImage.src;
+            var imageSizeRatioInput = document.getElementById('imageSizeRatioInput').value;
+
+            // Get image URL if an image is uploaded
+            var imageUrl = imageUrlInput.files.length > 0 ? URL.createObjectURL(imageUrlInput.files[0]) : '';
+
+            // Display the generated QR code
+            var qrCodeImage = document.getElementById('qrCodeImage');
+            qrCodeImage.src = generateQuickChartUrl(textInput, imageUrl, imageSizeRatioInput);
+        }
+
+        function generateQuickChartUrl(text, imageUrl, imageSizeRatio) {
+            // Construct the URL for generating QR code using QuickChart API
+            var baseUrl = 'https://quickchart.io/qr?';
+            var params = [];
+
+            if (text) {
+                params.push('text=' + encodeURIComponent(text));
+            }
+
+            if (imageUrl) {
+                params.push('centerImageUrl=' + encodeURIComponent(imageUrl));
+            }
+
+            if (imageSizeRatio) {
+                params.push('centerImageSizeRatio=' + encodeURIComponent(imageSizeRatio));
+            }
+
+            return baseUrl + params.join('&');
+        }
+    </script>
+</body>
+</html>
